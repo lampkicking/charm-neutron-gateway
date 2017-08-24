@@ -17,8 +17,6 @@ from charmhelpers.contrib.openstack.amulet.utils import (
     # ERROR
 )
 
-from charmhelpers.contrib.openstack.utils import CompareOpenStackReleases
-
 # Use DEBUG to turn on debug logging
 u = OpenStackAmuletUtils(DEBUG)
 
@@ -214,7 +212,7 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
 
         # Authenticate admin with neutron
         ep = self.keystone.service_catalog.url_for(service_type='identity',
-                                                   endpoint_type='publicURL')
+                                                   interface='publicURL')
         self.neutron = neutronclient.Client(auth_url=ep,
                                             username='admin',
                                             password='openstack',
@@ -246,21 +244,7 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
             neutron_services.remove('neutron-lbaas-agent')
             neutron_services.append('neutron-lbaasv2-agent')
 
-        nova_cc_services = ['nova-api-ec2',
-                            'nova-api-os-compute',
-                            'nova-objectstore',
-                            'nova-cert',
-                            'nova-scheduler',
-                            'nova-conductor']
-
-        _os_release = self._get_openstack_release_string()
-        if CompareOpenStackReleases(_os_release) >= 'liberty':
-            nova_cc_services.remove('nova-api-ec2')
-            nova_cc_services.remove('nova-objectstore')
-
         commands = {
-            self.keystone_sentry: ['keystone'],
-            self.nova_cc_sentry: nova_cc_services,
             self.neutron_gateway_sentry: neutron_services
         }
 
@@ -283,8 +267,6 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
         }
         expected = {
             'network': [endpoint_check],
-            'compute': [endpoint_check],
-            'identity': [endpoint_check]
         }
         actual = self.keystone.service_catalog.get_endpoints()
 
@@ -311,55 +293,6 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
         if ret:
             amulet.raise_status(amulet.FAIL,
                                 msg='glance endpoint: {}'.format(ret))
-
-    def test_110_users(self):
-        """Verify expected users."""
-        u.log.debug('Checking keystone users...')
-        expected = [
-            {'name': 'admin',
-             'enabled': True,
-             'tenantId': u.not_null,
-             'id': u.not_null,
-             'email': 'juju@localhost'},
-            {'name': 'neutron',
-             'enabled': True,
-             'tenantId': u.not_null,
-             'id': u.not_null,
-             'email': 'juju@localhost'}
-        ]
-
-        if self._get_openstack_release() >= self.xenial_ocata:
-            # Ocata or later
-            expected.append({
-                'name': 'placement_nova',
-                'enabled': True,
-                'tenantId': u.not_null,
-                'id': u.not_null,
-                'email': 'juju@localhost'
-            })
-        elif self._get_openstack_release() >= self.trusty_kilo:
-            # Kilo or later
-            expected.append({
-                'name': 'nova',
-                'enabled': True,
-                'tenantId': u.not_null,
-                'id': u.not_null,
-                'email': 'juju@localhost'
-            })
-        else:
-            # Juno and earlier
-            expected.append({
-                'name': 's3_ec2_nova',
-                'enabled': True,
-                'tenantId': u.not_null,
-                'id': u.not_null,
-                'email': 'juju@localhost'
-            })
-
-        actual = self.keystone.users.list()
-        ret = u.validate_user_data(expected, actual)
-        if ret:
-            amulet.raise_status(amulet.FAIL, msg=ret)
 
     def test_202_neutron_gateway_rabbitmq_amqp_relation(self):
         """Verify the neutron-gateway to rabbitmq-server amqp relation data"""
@@ -617,6 +550,19 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
             }
         }
 
+        if self._get_openstack_release() >= self.trusty_mitaka:
+            del expected['DEFAULT']['control_exchange']
+            del expected['DEFAULT']['notification_driver']
+            connection_uri = (
+                "rabbit://neutron:{}@{}:5672/"
+                "openstack".format(rmq_ng_rel['password'],
+                                   rmq_ng_rel['hostname'])
+            )
+            expected['oslo_messaging_notifications'] = {
+                'driver': 'messagingv2',
+                'transport_url': connection_uri
+            }
+
         if self._get_openstack_release() >= self.trusty_kilo:
             # Kilo or later
             expected['oslo_messaging_rabbit'] = {
@@ -753,7 +699,7 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
             'quantum-network-service',
             'neutron-gateway:quantum-network-service')
         ep = self.keystone.service_catalog.url_for(service_type='identity',
-                                                   endpoint_type='publicURL')
+                                                   interface='publicURL')
 
         conf = '/etc/neutron/l3_agent.ini'
         expected = {
@@ -823,7 +769,7 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
                     'config file data...')
         unit = self.neutron_gateway_sentry
         ep = self.keystone.service_catalog.url_for(service_type='identity',
-                                                   endpoint_type='publicURL')
+                                                   interface='publicURL')
         nova_cc_relation = self.nova_cc_sentry.relation(
             'quantum-network-service',
             'neutron-gateway:quantum-network-service')
@@ -884,7 +830,7 @@ class NeutronGatewayBasicDeployment(OpenStackAmuletDeployment):
             'quantum-network-service',
             'neutron-gateway:quantum-network-service')
         ep = self.keystone.service_catalog.url_for(service_type='identity',
-                                                   endpoint_type='publicURL')
+                                                   interface='publicURL')
 
         expected = {
             'DEFAULT': {
