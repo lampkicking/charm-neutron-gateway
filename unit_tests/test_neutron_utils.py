@@ -94,20 +94,20 @@ class TestNeutronUtils(CharmTestCase):
         self.config.return_value = 'ovs'
         self.determine_dkms_package.return_value = [
             'openvswitch-datapath-dkms']
-        self.assertEquals(
+        self.assertEqual(
             neutron_utils.get_early_packages(),
             ['openvswitch-datapath-dkms', 'linux-headers-2.6.18'])
 
     def test_get_early_packages_nsx(self):
         self.config.return_value = 'nsx'
-        self.assertEquals(
+        self.assertEqual(
             neutron_utils.get_early_packages(),
             [])
 
     def test_get_early_packages_empty(self):
         self.config.return_value = 'noop'
-        self.assertEquals(neutron_utils.get_early_packages(),
-                          [])
+        self.assertEqual(neutron_utils.get_early_packages(),
+                         [])
 
     @patch.object(neutron_utils, 'git_install_requested')
     def test_get_packages_ovs_icehouse(self, git_requested):
@@ -288,9 +288,13 @@ class TestNeutronUtils(CharmTestCase):
                  call('br1', 'eth0.200', promisc=True)]
         self.add_bridge_port.assert_has_calls(calls)
 
+    @patch.object(neutron_utils, 'register_configs')
     @patch('charmhelpers.contrib.openstack.templating.OSConfigRenderer')
     @patch.object(neutron_utils, 'git_install_requested')
-    def test_do_openstack_upgrade(self, git_requested, mock_renderer):
+    def test_do_openstack_upgrade(self, git_requested, mock_renderer,
+                                  mock_register_configs):
+        mock_configs = MagicMock()
+        mock_register_configs.return_value = mock_configs
         git_requested.return_value = False
         self.config.side_effect = self.test_config.get
         self.is_relation_made.return_value = False
@@ -298,8 +302,8 @@ class TestNeutronUtils(CharmTestCase):
         self.test_config.set('plugin', 'ovs')
         self.get_os_codename_install_source.return_value = 'havana'
         self.os_release.return_value = 'havana'
-        configs = neutron_utils.register_configs()
-        neutron_utils.do_openstack_upgrade(configs)
+        neutron_utils.do_openstack_upgrade(mock_configs)
+        mock_register_configs.assert_called_with('havana')
         self.assertTrue(self.log.called)
         self.apt_update.assert_called_with(fatal=True)
         dpkg_opts = [
@@ -985,17 +989,17 @@ class TestNeutronAgentReallocation(CharmTestCase):
             call('neutron', shell='/bin/bash', system_user=True),
             call('nova', shell='/bin/bash', system_user=True),
         ]
-        self.assertEquals(adduser.call_args_list, expected)
+        self.assertEqual(adduser.call_args_list, expected)
         expected = [
             call('neutron', system_group=True),
             call('nova', system_group=True),
         ]
-        self.assertEquals(add_group.call_args_list, expected)
+        self.assertEqual(add_group.call_args_list, expected)
         expected = [
             call('neutron', 'neutron'),
             call('nova', 'nova'),
         ]
-        self.assertEquals(add_user_to_group.call_args_list, expected)
+        self.assertEqual(add_user_to_group.call_args_list, expected)
         expected = [
             call('/etc/neutron', owner='neutron',
                  group='neutron', perms=0755, force=False),
@@ -1016,7 +1020,7 @@ class TestNeutronAgentReallocation(CharmTestCase):
             call('/var/log/nova', owner='neutron',
                  group='neutron', perms=0755, force=False),
         ]
-        self.assertEquals(mkdir.call_args_list, expected)
+        self.assertEqual(mkdir.call_args_list, expected)
         expected = [
             call('/var/log/neutron/bigswitch-agent.log', '', owner='neutron',
                  group='neutron', perms=0644),
@@ -1055,7 +1059,7 @@ class TestNeutronAgentReallocation(CharmTestCase):
             call('/var/log/neutron/vpn_agent.log', '', owner='neutron',
                  group='neutron', perms=0644),
         ]
-        self.assertEquals(write_file.call_args_list, expected)
+        self.assertEqual(write_file.call_args_list, expected)
 
     @patch('os.remove')
     @patch('os.path.join')
@@ -1380,7 +1384,7 @@ class TestNeutronAgentReallocation(CharmTestCase):
                  nova_api_metadata_context, perms=0o644,
                  templates_dir='joined-string'),
         ]
-        self.assertEquals(self.render.call_args_list, expected)
+        self.assertEqual(self.render.call_args_list, expected)
 
     @patch('os.listdir')
     @patch('os.remove')
@@ -1458,7 +1462,7 @@ class TestNeutronAgentReallocation(CharmTestCase):
                  'joined-string', {'daemon_path': 'joined-string'},
                  perms=420),
         ]
-        self.assertEquals(self.render.call_args_list, expected)
+        self.assertEqual(self.render.call_args_list, expected)
 
     def test_assess_status(self):
         with patch.object(neutron_utils, 'assess_status_func') as asf:
@@ -1536,4 +1540,22 @@ class TestNeutronAgentReallocation(CharmTestCase):
         )
         _subprocess.check_call.assert_called_with(
             ['systemctl', 'daemon-reload']
+        )
+
+    @patch.object(neutron_utils, 'context')
+    def test_configure_apparmor_mitaka(self, context):
+        self.os_release.return_value = 'mitaka'
+        context.AppArmorContext = MagicMock()
+        neutron_utils.configure_apparmor()
+        context.AppArmorContext.assert_any_call(
+            neutron_utils.NEUTRON_LBAAS_AA_PROFILE
+        )
+
+    @patch.object(neutron_utils, 'context')
+    def test_configure_apparmor_newton(self, context):
+        self.os_release.return_value = 'newton'
+        context.AppArmorContext = MagicMock()
+        neutron_utils.configure_apparmor()
+        context.AppArmorContext.assert_any_call(
+            neutron_utils.NEUTRON_LBAASV2_AA_PROFILE
         )
