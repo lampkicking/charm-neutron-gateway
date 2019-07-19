@@ -172,21 +172,37 @@ class NovaMetadataContext(OSContextGenerator):
         ctxt = {}
         cmp_os_release = CompareOpenStackReleases(os_release('neutron-common'))
         if cmp_os_release < 'rocky':
+<<<<<<< HEAD
             ctxt['vendordata_providers'] = []
+=======
+            vdata_providers = []
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
             vdata = config('vendor-data')
             vdata_url = config('vendor-data-url')
 
             if vdata:
                 ctxt['vendor_data'] = True
+<<<<<<< HEAD
                 ctxt['vendordata_providers'].append('StaticJSON')
+=======
+                vdata_providers.append('StaticJSON')
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
             if vdata_url:
                 if cmp_os_release > 'mitaka':
                     ctxt['vendor_data_url'] = vdata_url
+<<<<<<< HEAD
                     ctxt['vendordata_providers'].append('DynamicJSON')
                 else:
                     log('Dynamic vendor data unsupported'
                         ' for {}.'.format(cmp_os_release), level=ERROR)
+=======
+                    vdata_providers.append('DynamicJSON')
+                else:
+                    log('Dynamic vendor data unsupported'
+                        ' for {}.'.format(cmp_os_release), level=ERROR)
+            ctxt['vendordata_providers'] = ','.join(vdata_providers)
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
         for rid in relation_ids(self.rel_name):
             for unit in related_units(rid):
                 rdata = relation_get(rid=rid, unit=unit)

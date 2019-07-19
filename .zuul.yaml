@@ -1,3 +1,7 @@
 - project:
     templates:
       - python35-charm-jobs
+<<<<<<< HEAD
+=======
+      - openstack-cover-jobs
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8

@@ -191,7 +191,16 @@ options:
       Enable metadata on an isolated network (no router ports).
   sysctl:
     type: string
-    default:
+    default: |
+      { net.ipv4.neigh.default.gc_thresh1 : 128,
+        net.ipv4.neigh.default.gc_thresh2 : 28672,
+        net.ipv4.neigh.default.gc_thresh3 : 32768,
+        net.ipv6.neigh.default.gc_thresh1 : 128,
+        net.ipv6.neigh.default.gc_thresh2 : 28672,
+        net.ipv6.neigh.default.gc_thresh3 : 32768,
+        net.nf_conntrack_max : 1000000,
+        net.netfilter.nf_conntrack_buckets : 204800,
+        net.netfilter.nf_conntrack_max : 1000000 }
     description: |
       YAML-formatted associative array of sysctl key/value pairs to be set
       persistently e.g. '{ kernel.pid_max : 4194303 }'.
@@ -257,7 +266,11 @@ options:
     description: |
       A JSON-formatted string that will serve as vendor metadata
       (via "StaticJSON" provider) to all VM's within an OpenStack deployment,
+<<<<<<< HEAD
       regardless of project or domain. For deployments of Queens or later
+=======
+      regardless of project or domain. For deployments of Rocky or later
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
       this value is ignored. Please set the corresponding value in the
       nova-cloud-controller charm.
   vendor-data-url:
@@ -268,7 +281,11 @@ options:
       (via "DynamicJSON" provider) to all VM's within an OpenStack deployment,
       regardless of project or domain.
       .
+<<<<<<< HEAD
       Only supported in OpenStack Newton and higher. For deployments of Queens or
+=======
+      Only supported in OpenStack Newton and higher. For deployments of Rocky or
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
       later this value is ignored. Please set the corresponding value in the
       nova-cloud-controller charm.
   default-availability-zone:

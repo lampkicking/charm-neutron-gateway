@@ -120,7 +120,14 @@ class TestQuantumHooks(CharmTestCase):
 
         def mock_relids(rel):
             return ['relid']
+<<<<<<< HEAD
         self.test_config.set('sysctl', '{ kernel.max_pid: "1337"}')
+=======
+        self.test_config.set(
+            'sysctl',
+            '{foo : bar}'
+        )
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
         self.openstack_upgrade_available.return_value = True
         self.valid_plugin.return_value = True
         self.relation_ids.side_effect = mock_relids
@@ -131,8 +138,14 @@ class TestQuantumHooks(CharmTestCase):
         self.assertTrue(self.configure_ovs.called)
         self.assertTrue(_amqp_joined.called)
         self.assertTrue(_amqp_nova_joined.called)
+<<<<<<< HEAD
         self.assertTrue(self.create_sysctl.called)
         self.configure_apparmor.assert_called_with()
+=======
+        self.create_sysctl.assert_called_with(
+            '{foo : bar}',
+            '/etc/sysctl.d/50-quantum-gateway.conf')
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     def test_config_changed_upgrade(self):
         self.disable_nova_metadata.return_value = False

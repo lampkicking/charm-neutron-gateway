@@ -1,25 +1,17 @@
 #!/usr/bin/env python
 
-<<<<<<< HEAD
 <<<<<<< HEAD:tests/dev-basic-cosmic-rocky
 """Amulet tests on a basic quantum-gateway deployment on cosmic-rocky."""
 =======
 """Amulet tests on a basic quantum-gateway deployment on disco-stein."""
 >>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8:tests/dev-basic-disco-stein
-=======
-"""Amulet tests on a basic quantum-gateway deployment on cosmic-rocky."""
->>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
 from basic_deployment import NeutronGatewayBasicDeployment
 
 if __name__ == '__main__':
-<<<<<<< HEAD
 <<<<<<< HEAD:tests/dev-basic-cosmic-rocky
     deployment = NeutronGatewayBasicDeployment(series='cosmic')
 =======
     deployment = NeutronGatewayBasicDeployment(series='disco')
 >>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8:tests/dev-basic-disco-stein
-=======
-    deployment = NeutronGatewayBasicDeployment(series='cosmic')
->>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
     deployment.run_tests()

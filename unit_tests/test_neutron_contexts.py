@@ -459,7 +459,11 @@ class TestNovaMetadataContext(CharmTestCase):
         ctxt = neutron_contexts.NovaMetadataContext()()
 
         self.assertTrue(ctxt['vendor_data'])
+<<<<<<< HEAD
         self.assertEqual(ctxt['vendordata_providers'], ['StaticJSON'])
+=======
+        self.assertEqual(ctxt['vendordata_providers'], 'StaticJSON')
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     @patch.object(neutron_contexts, 'get_local_ip')
     @patch.object(neutron_contexts, 'get_shared_secret')
@@ -476,7 +480,11 @@ class TestNovaMetadataContext(CharmTestCase):
         ctxt = neutron_contexts.NovaMetadataContext()()
 
         self.assertEqual(ctxt['vendor_data_url'], _vdata_url)
+<<<<<<< HEAD
         self.assertEqual(ctxt['vendordata_providers'], ['DynamicJSON'])
+=======
+        self.assertEqual(ctxt['vendordata_providers'], 'DynamicJSON')
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     @patch.object(neutron_contexts, 'get_local_ip')
     @patch.object(neutron_contexts, 'get_shared_secret')
@@ -496,8 +504,13 @@ class TestNovaMetadataContext(CharmTestCase):
 
         self.assertTrue(ctxt['vendor_data'])
         self.assertEqual(ctxt['vendor_data_url'], _vdata_url)
+<<<<<<< HEAD
         self.assertEqual(ctxt['vendordata_providers'], ['StaticJSON',
                                                         'DynamicJSON'])
+=======
+        self.assertEqual(ctxt['vendordata_providers'],
+                         'StaticJSON,DynamicJSON')
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     @patch.object(neutron_contexts, 'get_local_ip')
     @patch.object(neutron_contexts, 'get_shared_secret')
@@ -519,7 +532,11 @@ class TestNovaMetadataContext(CharmTestCase):
                 'nova_metadata_port': '8775',
                 'nova_metadata_protocol': 'http',
                 'shared_secret': 'asecret',
+<<<<<<< HEAD
                 'vendordata_providers': []})
+=======
+                'vendordata_providers': ''})
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     @patch.object(neutron_contexts, 'relation_get')
     @patch.object(neutron_contexts, 'related_units')
@@ -542,7 +559,11 @@ class TestNovaMetadataContext(CharmTestCase):
                 'nova_metadata_port': '8775',
                 'nova_metadata_protocol': 'http',
                 'shared_secret': 'auuid',
+<<<<<<< HEAD
                 'vendordata_providers': []})
+=======
+                'vendordata_providers': ''})
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
 
     @patch.object(neutron_contexts, 'get_local_ip')
     @patch.object(neutron_contexts, 'get_shared_secret')
@@ -561,4 +582,8 @@ class TestNovaMetadataContext(CharmTestCase):
                 'nova_metadata_port': '8775',
                 'nova_metadata_protocol': 'http',
                 'shared_secret': 'buuid',
+<<<<<<< HEAD
                 'vendordata_providers': []})
+=======
+                'vendordata_providers': ''})
+>>>>>>> 9733743501c1abd82e31c4e6c6cb14faefdc05a8
